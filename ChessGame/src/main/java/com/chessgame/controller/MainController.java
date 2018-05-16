@@ -5,13 +5,14 @@ import com.chessgame.model.board.Move;
 import com.chessgame.model.board.Tile;
 import com.chessgame.model.pieces.Piece;
 import com.chessgame.model.player.MoveTransition;
+import com.chessgame.model.player.Player;
 import com.chessgame.ui.PieceImage;
 
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
-
 import javafx.scene.layout.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -198,6 +199,7 @@ public class MainController extends BorderPane {
 
                 final String path = DEFAULT_PATH_TO_IMAGES + board.getTile(this.tileID).getPiece().getPieceAlliance().toString().substring(0, 1)
                         + board.getTile(this.tileID).getPiece().toString() + ".png";
+                
                 final int x = getXCoordinate(boardDirection.flippedTileID(this.tileID));
                 final int y = getYCoordinate(boardDirection.flippedTileID(this.tileID));
 
@@ -263,6 +265,7 @@ public class MainController extends BorderPane {
                     destinationTile = MainController.this.board.getTile(tileCoOrd);
                     final Move move = Move.MoveFactory.createMove(MainController.this.board, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
                     final MoveTransition transition = MainController.this.board.getCurrentPlayer().makeMove(move);
+                    final Player currentPlayer = MainController.this.board.getCurrentPlayer();
 
                     if (transition.getMovesStatus().isDone()) {
 
@@ -289,6 +292,12 @@ public class MainController extends BorderPane {
                         for (final TilePanel tilePanel : boardPanel.boardTiles) {
                             tilePanel.assignTileColor();
                         }
+                    }
+                    
+                    if (currentPlayer.isInCheckMate()) {
+                        System.out.println("" + currentPlayer.getOpponent().getAlliance() + " wins");
+                        //XMLController xmlController = new XMLController();
+                        //xmlController.setGameHistoryOut(currentPlayer.getOpponent().getAlliance().toString());
                     }
                 });
             }

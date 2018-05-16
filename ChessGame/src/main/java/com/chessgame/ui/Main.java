@@ -89,10 +89,13 @@ public class Main extends Application {
         final MenuItem loadGame = new MenuItem("Load game");
         menuController.setLoadGameAction(loadGame);
         
+        final MenuItem showWins = new MenuItem("Show all time wins");
+        menuController.setShowWinsAction(showWins);
+        
         final MenuItem exit = new MenuItem("Exit");
         menuController.setExitAction(exit);
 
-        fileMenu.getItems().addAll(newGame, saveGame, loadGame, exit);
+        fileMenu.getItems().addAll(newGame, saveGame, loadGame, showWins, exit);
         
         return fileMenu;
     }

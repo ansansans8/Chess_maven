@@ -1,8 +1,12 @@
 package com.chessgame.controller;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import com.chessgame.model.xml.Chess;
 import com.chessgame.model.xml.ChessGame;
+import com.chessgame.model.xml.GameHistoryXML;
+import com.chessgame.model.xml.WinsXML.BlackWins;
+import com.chessgame.model.xml.WinsXML.WhiteWins;
 import com.chessgame.model.xml.XMLPiece;
 import static com.chessgame.model.xml.XMLUtils.*;
 import com.chessgame.model.Alliance;
@@ -26,12 +30,15 @@ import javax.xml.bind.Unmarshaller;
 
 public class XMLController {
     
-    private XMLIn xmlIn;
+	private XMLIn xmlIn;
     private final XMLOut xmlOut;
+    private GameHistoryIn gameHistoryIn;
+    private GameHistoryOut gameHistoryOut;    
     
     public XMLController() {
         this.xmlIn = new XMLIn();
         this.xmlOut = new XMLOut();
+        //this.gameHistoryIn = new GameHistoryIn();
     }
     
     public XMLIn getXmlIn() {
@@ -52,55 +59,60 @@ public class XMLController {
         this.xmlOut.setSavedGameID(savedGameID);
     }
     
+    public GameHistoryIn getGameHistoryIn() {
+        return gameHistoryIn;
+    }
+
+    public GameHistoryOut getGameHistoryOut() {
+        return gameHistoryOut;
+    }
+
+    public void setGameHistoryOut(String whoWon) {
+        this.gameHistoryOut = new GameHistoryOut(whoWon);
+    }
+       
     public class XMLIn {
     
-        public  Board createStandardBoardFromXML() throws JAXBException {
+        public  Board createStandardBoardFromXML(String fileName) throws JAXBException, FileNotFoundException {
 
-            if (FILE_EXISTS) {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Chess.class);
 
-                JAXBContext jaxbContext = JAXBContext.newInstance(Chess.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Chess outChess = (Chess) jaxbUnmarshaller.unmarshal(new File(PATH_TO_XML + "/" + fileName + ".xml"));
 
-                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                Chess outChess = (Chess) jaxbUnmarshaller.unmarshal(XML_FILE);
+            final Board.Builder builder = new Board.Builder();
 
-                final Board.Builder builder = new Board.Builder();
+            for (XMLPiece piece : outChess.getChessGame().getPieceList()) {
+                switch (piece.getXMLPieceType().toString()) {
 
-                for (XMLPiece piece : outChess.getChessGame().getPieceList()) {
-                    switch (piece.getXMLPieceType().toString()) {
+                    case "P" :
+                        builder.setPiece(new Pawn(piece.getTileCoordinate(), piece.getAlliance(), piece.getIsFirstMove()));
+                        break;
 
-                        case "P" :
-                            builder.setPiece(new Pawn(piece.getTileCoordinate(), piece.getAlliance(), piece.getIsFirstMove()));
-                            break;
+                    case "R" : 
+                        builder.setPiece(new Rook(piece.getTileCoordinate(), piece.getAlliance()));
+                        break;
 
-                        case "R" : 
-                            builder.setPiece(new Rook(piece.getTileCoordinate(), piece.getAlliance()));
-                            break;
+                    case "Q" : 
+                        builder.setPiece(new Queen(piece.getTileCoordinate(), piece.getAlliance()));
+                        break;
 
-                        case "Q" : 
-                            builder.setPiece(new Queen(piece.getTileCoordinate(), piece.getAlliance()));
-                            break;
+                    case "K" : 
+                        builder.setPiece(new King(piece.getTileCoordinate(), piece.getAlliance()));
+                        break;
 
-                        case "K" : 
-                            builder.setPiece(new King(piece.getTileCoordinate(), piece.getAlliance()));
-                            break;
+                    case "N" : 
+                        builder.setPiece(new Knight(piece.getTileCoordinate(), piece.getAlliance()));
+                        break;    
 
-                        case "N" : 
-                            builder.setPiece(new Knight(piece.getTileCoordinate(), piece.getAlliance()));
-                            break;    
-
-                        case "B" : 
-                            builder.setPiece(new Bishop(piece.getTileCoordinate(), piece.getAlliance()));
-                            break;    
-                    }
+                    case "B" : 
+                        builder.setPiece(new Bishop(piece.getTileCoordinate(), piece.getAlliance()));
+                        break;    
                 }
-                builder.setMoveMaker(outChess.getChessGame().getXMLnextMoveMaker());
+            }
+            builder.setMoveMaker(outChess.getChessGame().getXMLnextMoveMaker());
 
-                return builder.build();
-            }
-            else {
-                System.out.println("ez");
-                return Board.createStandardBoard();
-            }
+            return builder.build();            
         }
     }
     
@@ -170,11 +182,6 @@ public class XMLController {
             
             private void setGameId(String savedGameID) {
                 this.savedGameID =  savedGameID;
-                setOutFile(savedGameID);
-            }
-            
-            private void setOutFile(String outFile) {
-                this.outFile = new File(PATH_TO_XML.concat(outFile));
             }
 
             public void build() throws JAXBException {
@@ -187,13 +194,99 @@ public class XMLController {
                 chess = new Chess();
 
                 chess.setChessGame(chessGame);
-
+                
                 JAXBContext context = JAXBContext.newInstance(Chess.class);
                 Marshaller marshaller = context.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-                marshaller.marshal(chess, outFile);
+                marshaller.marshal(chess, new File(PATH_TO_XML + "/" + savedGameID + ".xml"));
             }
         }
+    }
+    
+public final class GameHistoryIn {
+        
+        private int numberOfWhiteWins;
+        private int numberOfBlackWins;
+        private File f;
+        
+        public GameHistoryIn() {
+        	
+            try {
+                readGameHistoryXML();
+            } catch (JAXBException ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        public void readGameHistoryXML() throws JAXBException {
+                        
+            JAXBContext jaxbContext = JAXBContext.newInstance(GameHistoryXML.class);
+
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            GameHistoryXML ghxml = (GameHistoryXML) jaxbUnmarshaller.unmarshal(f);
+            
+            setNumberOfBlackWins(ghxml.getBw().getNumberOfWins());
+            setNumberOfWhiteWins(ghxml.getWw().getNumberOfWins());
+        }
+
+        public int getNumberOfWhiteWins() {
+            return numberOfWhiteWins;
+        }
+
+        public int getNumberOfBlackWins() {
+            return numberOfBlackWins;
+        }
+
+        public void setNumberOfWhiteWins(int numberOfWhiteWins) {
+            this.numberOfWhiteWins = numberOfWhiteWins;
+        }
+
+        public void setNumberOfBlackWins(int numberOfBlackWins) {
+            this.numberOfBlackWins = numberOfBlackWins;
+        }
+        
+    }
+    
+    public class GameHistoryOut {
+        
+        private String whoWon;
+        private GameHistoryIn ghi = new GameHistoryIn();
+        private File f;
+
+        
+        public GameHistoryOut(String whoWon) {
+            this.whoWon = whoWon;
+            
+            try {
+                createGameHistoryXML();
+            } catch (JAXBException ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        private void createGameHistoryXML() throws JAXBException {
+            GameHistoryXML ghxml = new GameHistoryXML();
+            BlackWins bw = new BlackWins();
+            WhiteWins ww = new WhiteWins();
+            
+            if (whoWon.equals("WHITE")) {
+                bw.setNumberOfWins(ghi.getNumberOfBlackWins());
+                ww.setNumberOfWins(ghi.getNumberOfWhiteWins() + 1);
+            }
+            else {
+                bw.setNumberOfWins(ghi.getNumberOfBlackWins() + 1);
+                ww.setNumberOfWins(ghi.getNumberOfWhiteWins());
+            }
+            
+            ghxml.setBw(bw);
+            ghxml.setWw(ww);
+
+            JAXBContext context = JAXBContext.newInstance(GameHistoryXML.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            marshaller.marshal(ghxml, f);
+        }        
     }
 }

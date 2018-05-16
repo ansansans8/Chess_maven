@@ -27,9 +27,6 @@ public abstract class Player {
         this.possibleMoves = possibleMoves;
         this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
         
-        if (this.isInCheck()){
-            System.out.println("CHECK");
-        }
     }
     
     private King establishKing() {

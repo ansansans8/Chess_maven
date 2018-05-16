@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Chess>
+    <chessGame id="n" nextPlayer="BLACK">
+        <board>
+            <piece alliance="BLACK" firstMove="true" position="0" type="ROOK"/>
+            <piece alliance="BLACK" firstMove="true" position="1" type="KNIGHT"/>
+            <piece alliance="BLACK" firstMove="true" position="2" type="BISHOP"/>
+            <piece alliance="BLACK" firstMove="true" position="3" type="QUEEN"/>
+            <piece alliance="BLACK" firstMove="true" position="4" type="KING"/>
+            <piece alliance="BLACK" firstMove="true" position="5" type="BISHOP"/>
+            <piece alliance="BLACK" firstMove="true" position="6" type="KNIGHT"/>
+            <piece alliance="BLACK" firstMove="true" position="7" type="ROOK"/>
+            <piece alliance="BLACK" firstMove="true" position="8" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="9" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="10" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="11" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="13" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="14" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="true" position="15" type="PAWN"/>
+            <piece alliance="BLACK" firstMove="false" position="20" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="false" position="37" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="false" position="38" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="48" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="49" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="50" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="51" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="52" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="55" type="PAWN"/>
+            <piece alliance="WHITE" firstMove="true" position="56" type="ROOK"/>
+            <piece alliance="WHITE" firstMove="true" position="57" type="KNIGHT"/>
+            <piece alliance="WHITE" firstMove="true" position="58" type="BISHOP"/>
+            <piece alliance="WHITE" firstMove="true" position="59" type="QUEEN"/>
+            <piece alliance="WHITE" firstMove="true" position="60" type="KING"/>
+            <piece alliance="WHITE" firstMove="true" position="61" type="BISHOP"/>
+            <piece alliance="WHITE" firstMove="true" position="62" type="KNIGHT"/>
+            <piece alliance="WHITE" firstMove="true" position="63" type="ROOK"/>
+        </board>
+    </chessGame>
+</Chess>
